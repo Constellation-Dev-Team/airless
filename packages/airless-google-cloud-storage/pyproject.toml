@@ -1,6 +1,6 @@
 [project]
 name = "airless-google-cloud-storage"
-version = "0.4.1"
+version = "0.5.0"
 description = "Airless package to work with google cloud storage"
 readme = "README.md"
 requires-python = ">=3.9"

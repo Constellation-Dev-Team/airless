@@ -1,6 +1,9 @@
 
 **unreleased**
 
+**v0.5.0**
+- [Feature] Allow the file name from the download file to be manually overriden in `FileHook`
+
 **v0.4.1**
 - [Bugfix] Fix topic name to `QUEUE_TOPIC_BATCH_WRITE_PROCESS`
 

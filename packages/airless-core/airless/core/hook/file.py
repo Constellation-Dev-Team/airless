@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from dateutil import parser
 from ftplib import FTP
-from typing import Any
+from typing import Any, Optional
 
 from airless.core.hook import BaseHook
 
@@ -97,7 +97,12 @@ class FileHook(BaseHook):
         return f'/tmp/{filename}'
 
     def download(
-        self, url: str, headers: dict, timeout: int = 500, proxies: dict = None
+        self,
+        url: str,
+        headers: dict,
+        timeout: int = 500,
+        proxies: Optional[dict] = None,
+        override_filename: Optional[str] = None,
     ) -> str:
         """Downloads a file from a given URL and saves it to a temporary path.
 
@@ -106,6 +111,7 @@ class FileHook(BaseHook):
             headers (dict): The headers to include in the request.
             timeout (int, optional): The request timeout in seconds. Defaults to 500.
             proxies (dict, optional): Proxy settings for the request. Defaults to None.
+            override_filename (str, optional): Used filename to override the original downloaded file name
 
         Returns:
             str: The local filename where the downloaded file is saved.
@@ -129,7 +135,9 @@ class FileHook(BaseHook):
                 if matches:
                     filename = matches.group(1)
 
-            local_filename = self.get_tmp_filepath(filename or url)
+            local_filename = self.get_tmp_filepath(
+                override_filename or filename or r.url
+            )
 
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):

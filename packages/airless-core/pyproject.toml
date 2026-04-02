@@ -1,6 +1,6 @@
 [project]
 name = "airless-core"
-version = "0.4.2"
+version = "0.5.0"
 description = "Airless is a package that aims to build a serverless and lightweight orchestration platform, creating workflows of multiple tasks being executed on FaaS platform"
 readme = "README.md"
 requires-python = ">=3.9"
