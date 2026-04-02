@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.5.0**
 - [Feature] Allow the file name from the download file to be manually overriden in `FileHook`
 
 **v0.4.1**
