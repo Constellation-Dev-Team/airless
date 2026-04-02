@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.5.0**
 - [Feature] Allow the file name from the download file to be manually overriden in `FileHook`
 - [Enhancement] Use the final URL (after redirects) to dinamically create the file name when downloading a new file
 
