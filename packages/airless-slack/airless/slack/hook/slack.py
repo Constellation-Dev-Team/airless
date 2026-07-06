@@ -88,6 +88,33 @@ class SlackHook(BaseHook):
             return {'status': response.text}
         return response.json()
 
+    def get_user_id_by_email(self, email: str) -> str:
+        """Resolves a Slack user ID from their email address.
+
+        Args:
+            email (str): The user's email address.
+
+        Returns:
+            str: The Slack user ID.
+        """
+        response = requests.get(
+            f'https://{self.api_url}/api/users.lookupByEmail',
+            headers=self.get_headers(),
+            params={'email': email},
+            timeout=10
+        )
+        response.raise_for_status()
+        response_json = response.json()
+
+        if not response_json.get('ok'):
+            raise Exception(f"Failed to lookup Slack user by email '{email}': {response_json.get('error', 'unknown error')}")
+
+        user_id = (response_json.get('user') or {}).get('id')
+        if not user_id:
+            raise Exception(f"Failed to lookup Slack user by email '{email}': missing user id in response")
+
+        return user_id
+
     def react(self, channel: str, reaction: str, ts: str) -> Dict[str, Any]:
         """Adds a reaction to a Slack message.
 
