@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.4.0**
 - [Feature] Support sending messages to users (DM) via user ID (in `channels`) or `user_emails`
 
 **v0.3.0**
