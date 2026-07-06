@@ -1,5 +1,6 @@
 
 **unreleased**
+- [Feature] Support sending messages to users (DM) via user ID (in `channels`) or `user_emails`
 
 **v0.3.0**
 - [Refactor] Remove airless dependency limitation

@@ -22,9 +22,13 @@ class SlackSendOperator(BaseEventOperator):
 
         Args:
             data (Dict[str, Any]): The data containing message information.
+                `channels` accepts channel IDs and/or user IDs (Slack opens a DM
+                automatically for user IDs). `user_emails` resolves each email to a
+                Slack user ID before sending a DM.
             topic (str): The Pub/Sub topic.
         """
         channels: List[str] = data.get('channels', [])
+        user_emails: List[str] = data.get('user_emails', [])
         secret_id: str = data.get('secret_id', 'slack_alert')
         message: str = data.get('message')
         blocks: Optional[List[Dict[str, Any]]] = data.get('blocks')
@@ -38,10 +42,17 @@ class SlackSendOperator(BaseEventOperator):
         token: str = self.secret_manager_hook.get_secret(get_config('GCP_PROJECT'), secret_id, True)['bot_token']
         self.slack_hook.set_token(token)
 
-        if not channels and not response_url:
-            raise Exception('Either channels or response_url must be set')
+        if not channels and not user_emails and not response_url:
+            raise Exception('Either channels, user_emails or response_url must be set')
 
-        for channel in channels:
+        recipients = set(channels)
+        for email in user_emails:
+            try:
+                recipients.add(self.slack_hook.get_user_id_by_email(email))
+            except Exception as e:
+                self.logger.error(f"Failed to resolve Slack user by email '{email}': {e}")
+
+        for channel in recipients:
             response = self.slack_hook.send(
                 channel=channel,
                 message=message,
