@@ -1,4 +1,3 @@
-
 from typing import Any, Dict, List, Optional
 
 from airless.core.operator import BaseEventOperator
@@ -27,8 +26,8 @@ class SlackSendOperator(BaseEventOperator):
                 Slack user ID before sending a DM.
             topic (str): The Pub/Sub topic.
         """
-        channels: List[str] = data.get('channels', [])
-        user_emails: List[str] = data.get('user_emails', [])
+        channels: List[str] = data.get('channels') or []
+        user_emails: List[str] = data.get('user_emails') or []
         secret_id: str = data.get('secret_id', 'slack_alert')
         message: str = data.get('message')
         blocks: Optional[List[Dict[str, Any]]] = data.get('blocks')
@@ -39,18 +38,22 @@ class SlackSendOperator(BaseEventOperator):
         response_type: Optional[str] = data.get('response_type')
         replace_original: Optional[bool] = data.get('replace_original')
 
-        token: str = self.secret_manager_hook.get_secret(get_config('GCP_PROJECT'), secret_id, True)['bot_token']
+        token: str = self.secret_manager_hook.get_secret(
+            get_config('GCP_PROJECT'), secret_id, True
+        )['bot_token']
         self.slack_hook.set_token(token)
 
         if not channels and not user_emails and not response_url:
             raise Exception('Either channels, user_emails or response_url must be set')
 
         recipients = set(channels)
-        for email in user_emails:
+        for email in set(user_emails):
             try:
                 recipients.add(self.slack_hook.get_user_id_by_email(email))
             except Exception as e:
-                self.logger.error(f"Failed to resolve Slack user by email '{email}': {e}")
+                self.logger.error(
+                    f"Failed to resolve Slack user by email '{email}': {e}"
+                )
 
         for channel in recipients:
             response = self.slack_hook.send(
@@ -61,7 +64,8 @@ class SlackSendOperator(BaseEventOperator):
                 reply_broadcast=reply_broadcast,
                 attachments=attachments,
                 response_type=response_type,
-                replace_original=replace_original)
+                replace_original=replace_original,
+            )
             self.logger.debug(response)
 
         if response_url:
@@ -73,7 +77,8 @@ class SlackSendOperator(BaseEventOperator):
                 attachments=attachments,
                 response_url=response_url,
                 response_type=response_type,
-                replace_original=replace_original)
+                replace_original=replace_original,
+            )
             self.logger.debug(response)
 
 
@@ -98,7 +103,9 @@ class SlackReactOperator(BaseEventOperator):
         reaction: str = data.get('reaction')
         ts: str = data.get('ts')
 
-        token: str = self.secret_manager_hook.get_secret(get_config('GCP_PROJECT'), secret_id, True)['bot_token']
+        token: str = self.secret_manager_hook.get_secret(
+            get_config('GCP_PROJECT'), secret_id, True
+        )['bot_token']
         self.slack_hook.set_token(token)
 
         response = self.slack_hook.react(channel, reaction, ts)

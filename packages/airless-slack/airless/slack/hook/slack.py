@@ -106,10 +106,14 @@ class SlackHook(BaseHook):
         response.raise_for_status()
         response_json = response.json()
 
-        if not response_json['ok']:
-            raise Exception(f"Failed to lookup Slack user by email '{email}': {response_json['error']}")
+        if not response_json.get('ok'):
+            raise Exception(f"Failed to lookup Slack user by email '{email}': {response_json.get('error', 'unknown error')}")
 
-        return response_json['user']['id']
+        user_id = (response_json.get('user') or {}).get('id')
+        if not user_id:
+            raise Exception(f"Failed to lookup Slack user by email '{email}': missing user id in response")
+
+        return user_id
 
     def react(self, channel: str, reaction: str, ts: str) -> Dict[str, Any]:
         """Adds a reaction to a Slack message.
