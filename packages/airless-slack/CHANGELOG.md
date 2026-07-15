@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.4.3**
 - [Bugfix] check api response only when not responding to a thread
 
 **v0.4.2**
