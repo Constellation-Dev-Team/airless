@@ -89,14 +89,15 @@ class SlackHook(BaseHook):
         )
         response.raise_for_status()
 
+        if response_url:
+            return {'status': response.text}
+
         response_json = response.json()
         if not response_json.get('ok'):
             raise Exception(
                 f'Failed to send slack message: {response_json.get("error", "unknown error")}'
             )
 
-        if response_url:
-            return {'status': response.text}
         return response.json()
 
     def get_user_id_by_email(self, email: str) -> str:
@@ -154,4 +155,4 @@ class SlackHook(BaseHook):
             raise Exception(
                 f'Failed to react to message: {response_json.get("error", "unknown error")}'
             )
-        return response.json()
+        return response_json

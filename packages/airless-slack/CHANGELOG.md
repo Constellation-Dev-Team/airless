@@ -1,5 +1,6 @@
 
 **unreleased**
+- [Bugfix] check api response only when not responding to a thread
 
 **v0.4.2**
 - [Bugfix] Raise exception when message cannot be sent to slack
