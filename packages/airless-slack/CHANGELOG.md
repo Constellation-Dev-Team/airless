@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.4.2**
 - [Bugfix] Raise exception when message cannot be sent to slack
 - [Bugfix] Raise exception when react to message cannot be sent to slack
 

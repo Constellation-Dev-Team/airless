@@ -1,6 +1,6 @@
 [project]
 name = "airless-slack"
-version = "0.4.1"
+version = "0.4.2"
 description = "Airless package to manage slack"
 readme = "README.md"
 requires-python = ">=3.9"
