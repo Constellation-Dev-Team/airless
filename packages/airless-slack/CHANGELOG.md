@@ -1,5 +1,7 @@
 
 **unreleased**
+- [Bugfix] Raise exception when message cannot be sent to slack
+- [Bugfix] Raise exception when react to message cannot be sent to slack
 
 **v0.4.1**
 - [Bugfix] Guard against `None` values for `channels`/`user_emails`, dedupe `user_emails` before lookup, and use safe dict access on the Slack `users.lookupByEmail` response

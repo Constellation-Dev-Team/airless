@@ -1,4 +1,3 @@
-
 import requests
 from typing import Any, Dict, List, Optional
 
@@ -27,14 +26,20 @@ class SlackHook(BaseHook):
         Returns:
             Dict[str, str]: The headers including the authorization token.
         """
-        return {
-            'Authorization': f'Bearer {self.token}'
-        }
+        return {'Authorization': f'Bearer {self.token}'}
 
     def send(
-            self, channel: Optional[str] = None, message: Optional[str] = None, blocks: Optional[List[Dict[str, Any]]] = None,
-            thread_ts: Optional[str] = None, reply_broadcast: bool = False, attachments: Optional[List[Dict[str, Any]]] = None,
-            response_url: Optional[str] = None, response_type: Optional[str] = None, replace_original: Optional[bool] = None) -> Dict[str, Any]:
+        self,
+        channel: Optional[str] = None,
+        message: Optional[str] = None,
+        blocks: Optional[List[Dict[str, Any]]] = None,
+        thread_ts: Optional[str] = None,
+        reply_broadcast: bool = False,
+        attachments: Optional[List[Dict[str, Any]]] = None,
+        response_url: Optional[str] = None,
+        response_type: Optional[str] = None,
+        replace_original: Optional[bool] = None,
+    ) -> Dict[str, Any]:
         """Sends a message to a Slack channel or a response URL.
 
         Args:
@@ -80,9 +85,15 @@ class SlackHook(BaseHook):
             response_url or f'https://{self.api_url}/api/chat.postMessage',
             headers=self.get_headers(),
             json=data,
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
+
+        response_json = response.json()
+        if not response_json.get('ok'):
+            raise Exception(
+                f'Failed to send slack message: {response_json.get("error", "unknown error")}'
+            )
 
         if response_url:
             return {'status': response.text}
@@ -101,17 +112,21 @@ class SlackHook(BaseHook):
             f'https://{self.api_url}/api/users.lookupByEmail',
             headers=self.get_headers(),
             params={'email': email},
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
         response_json = response.json()
 
         if not response_json.get('ok'):
-            raise Exception(f"Failed to lookup Slack user by email '{email}': {response_json.get('error', 'unknown error')}")
+            raise Exception(
+                f"Failed to lookup Slack user by email '{email}': {response_json.get('error', 'unknown error')}"
+            )
 
         user_id = (response_json.get('user') or {}).get('id')
         if not user_id:
-            raise Exception(f"Failed to lookup Slack user by email '{email}': missing user id in response")
+            raise Exception(
+                f"Failed to lookup Slack user by email '{email}': missing user id in response"
+            )
 
         return user_id
 
@@ -126,16 +141,17 @@ class SlackHook(BaseHook):
         Returns:
             Dict[str, Any]: The response from the Slack API.
         """
-        data: Dict[str, Any] = {
-            'channel': channel,
-            'name': reaction,
-            'timestamp': ts
-        }
+        data: Dict[str, Any] = {'channel': channel, 'name': reaction, 'timestamp': ts}
         response = requests.post(
             f'https://{self.api_url}/api/reactions.add',
             headers=self.get_headers(),
             json=data,
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
+        response_json = response.json()
+        if not response_json.get('ok'):
+            raise Exception(
+                f'Failed to react to message: {response_json.get("error", "unknown error")}'
+            )
         return response.json()
