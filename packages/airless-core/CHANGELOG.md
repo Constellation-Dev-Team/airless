@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.5.1**
 - [Bugfix] Remove `os.rename` calls because cloud run functions is throwing errors `[Errno 1] Operation not permitted` when calling it. Replace it by `os.link` + `os.remove`
 
 **v0.5.0**
