@@ -35,7 +35,7 @@ class FileUrlToGcsOperator(GoogleBaseEventOperator):
             override_filename=origin.get('filename'),
         )
 
-        self.move_to_destinations(local_filepath, destination)
+        local_filepath = self.move_to_destinations(local_filepath, destination)
 
         os.remove(local_filepath)
 
@@ -43,17 +43,21 @@ class FileUrlToGcsOperator(GoogleBaseEventOperator):
         self,
         local_filepath: str,
         destination: Union[Dict[str, Any], List[Dict[str, Any]]],
-    ) -> None:
+    ) -> str:
         """Moves the downloaded file to the specified destinations.
 
         Args:
             local_filepath (str): The local file path.
             destination (Union[Dict[str, Any], List[Dict[str, Any]]]): The destination(s) for the file.
+
+        Returns:
+            str: the current local file path, after file renaming
         """
         original_filepath = local_filepath
         destinations = destination if isinstance(destination, list) else [destination]
+        last = len(destinations) - 1
 
-        for dest in destinations:
+        for i, dest in enumerate(destinations):
             if dest.get('filename'):
                 local_filepath = self.file_hook.rename(
                     from_filename=local_filepath, to_filename=dest.get('filename')
@@ -82,10 +86,14 @@ class FileUrlToGcsOperator(GoogleBaseEventOperator):
                     ),
                 )
 
-                if local_filepath != original_filepath:  # revert to original filename
+                if (
+                    local_filepath != original_filepath and i != last
+                ):  # revert to original filename
                     local_filepath = self.file_hook.rename(
                         from_filename=local_filepath, to_filename=original_filepath
                     )
+
+        return local_filepath
 
     def remove_null_byte(self, local_filepath: str) -> None:
         """Removes null bytes from the specified file.

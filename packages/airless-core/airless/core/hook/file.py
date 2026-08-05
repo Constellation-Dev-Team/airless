@@ -158,7 +158,8 @@ class FileHook(BaseHook):
         to_filename_formatted = (
             '' if to_filename.startswith('/tmp/') else '/tmp/'
         ) + to_filename
-        os.rename(from_filename, to_filename_formatted)
+        os.link(from_filename, to_filename_formatted)
+        os.remove(from_filename)
         return to_filename_formatted
 
     def rename_files(self, dir, prefix):

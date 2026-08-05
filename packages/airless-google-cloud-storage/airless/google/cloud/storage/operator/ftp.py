@@ -1,4 +1,3 @@
-
 import os
 from typing import Dict
 
@@ -29,6 +28,6 @@ class FtpToGcsOperator(FileUrlToGcsOperator):
 
         local_filepath = self.ftp_hook.download(origin['directory'], origin['filename'])
 
-        self.move_to_destinations(local_filepath, destination)
+        local_filepath = self.move_to_destinations(local_filepath, destination)
 
         os.remove(local_filepath)

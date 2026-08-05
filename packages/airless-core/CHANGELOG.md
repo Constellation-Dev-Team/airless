@@ -1,6 +1,9 @@
 
 **unreleased**
 
+**v0.5.1**
+- [Bugfix] Remove `os.rename` calls because cloud run functions is throwing errors `[Errno 1] Operation not permitted` when calling it. Replace it by `os.link` + `os.remove`
+
 **v0.5.0**
 - [Feature] Allow the file name from the download file to be manually overriden in `FileHook`
 - [Enhancement] Use the final URL (after redirects) to dinamically create the file name when downloading a new file
