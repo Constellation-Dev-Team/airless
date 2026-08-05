@@ -1,5 +1,6 @@
 
 **unreleased**
+- [Bugfix] Only rename the file if needed, otherwise ignore because cloud run functions is throwing errors in this operation
 
 **v0.5.0**
 - [Feature] Allow the file name from the download file to be manually overriden in `FileHook`
