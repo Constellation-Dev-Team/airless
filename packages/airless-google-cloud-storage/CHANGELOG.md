@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.5.1**
 - [Bugfix] Only rename the file if needed, otherwise ignore because cloud run functions is throwing errors in this operation
 
 **v0.5.0**
