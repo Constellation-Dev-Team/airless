@@ -1,5 +1,7 @@
 
 **unreleased**
+
+**v0.5.0**
 - [Feature] Add Slack channel read methods to `SlackHook`: `get_users`, `get_channels`, `get_channel`, `get_channel_users`, `join_channel`, `get_messages`, `get_message_replies` and `search`
 - [Feature] Add `process_response` and `timedelta_to_timestamp` helpers to `SlackHook`
 - [Feature] Add user token support to `SlackHook` via `set_user_token` and `get_user_headers`, used by `search`
