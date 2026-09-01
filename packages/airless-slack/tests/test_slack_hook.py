@@ -140,6 +140,17 @@ class TestGetMessages:
         assert params['cursor'] == 'next-page'
         assert params['oldest'] < params['latest']
 
+    def test_zero_timedelta_sends_boundary_params(self, hook):
+        response = build_response({'ok': True, 'messages': []})
+        with patch(
+            'airless.slack.hook.slack.requests.get', return_value=response
+        ) as mock_get:
+            hook.get_messages('C123', timedelta_start=0, timedelta_end=0)
+
+        params = mock_get.call_args.kwargs['params']
+        assert 'oldest' in params
+        assert 'latest' in params
+
     def test_pagination_follows_cursor(self, hook):
         first = build_response(
             {
@@ -189,6 +200,18 @@ class TestGetMessageReplies:
         assert 'latest' in params
 
 
+    def test_zero_timedelta_sends_boundary_params(self, hook):
+        response = build_response({'ok': True, 'messages': []})
+        with patch(
+            'airless.slack.hook.slack.requests.get', return_value=response
+        ) as mock_get:
+            hook.get_message_replies('C123', '1.0', timedelta_start=0, timedelta_end=0)
+
+        params = mock_get.call_args.kwargs['params']
+        assert 'oldest' in params
+        assert 'latest' in params
+
+
 class TestOtherReadMethods:
     def test_get_users(self, hook):
         response = build_response({'ok': True, 'members': [{'id': 'U1'}]})
@@ -210,7 +233,16 @@ class TestOtherReadMethods:
 
         params = mock_get.call_args.kwargs['params']
         assert params['types'] == 'public_channel,private_channel'
-        assert params['exclude_archived'] is True
+        assert params['exclude_archived'] == 'true'
+
+    def test_get_channels_exclude_archived_false_is_lowercase_string(self, hook):
+        response = build_response({'ok': True, 'channels': []})
+        with patch(
+            'airless.slack.hook.slack.requests.get', return_value=response
+        ) as mock_get:
+            hook.get_channels(exclude_archived=False)
+
+        assert mock_get.call_args.kwargs['params']['exclude_archived'] == 'false'
 
     def test_get_channel(self, hook):
         response = build_response({'ok': True, 'channel': {'id': 'C1'}})
@@ -222,6 +254,19 @@ class TestOtherReadMethods:
         assert mock_get.call_args[0][0] == 'https://slack.com/api/conversations.info'
         assert mock_get.call_args.kwargs['params'] == {'channel': 'C1'}
         assert result == {'ok': True, 'channel': {'id': 'C1'}}
+
+    def test_get_channel_returns_dict(self, hook):
+        response = build_response({'ok': True, 'channel': {'id': 'C1'}})
+        with patch('airless.slack.hook.slack.requests.get', return_value=response):
+            result = hook.get_channel('C1')
+
+        assert isinstance(result, dict)
+
+    def test_get_channel_raises_when_not_ok(self, hook):
+        response = build_response({'ok': False, 'error': 'channel_not_found'})
+        with patch('airless.slack.hook.slack.requests.get', return_value=response):
+            with pytest.raises(Exception, match='channel_not_found'):
+                hook.get_channel('C1')
 
     def test_get_channel_users(self, hook):
         response = build_response({'ok': True, 'members': ['U1']})
@@ -263,6 +308,21 @@ class TestOtherReadMethods:
         }
         assert mock_get.call_args.kwargs['params']['query'] == 'hello'
         assert result['ok'] is True
+
+    def test_search_returns_dict(self, hook):
+        hook.set_user_token('user-token')
+        response = build_response({'ok': True, 'messages': {'matches': []}})
+        with patch('airless.slack.hook.slack.requests.get', return_value=response):
+            result = hook.search('hello')
+
+        assert isinstance(result, dict)
+
+    def test_search_raises_when_not_ok(self, hook):
+        hook.set_user_token('user-token')
+        response = build_response({'ok': False, 'error': 'not_allowed_token_type'})
+        with patch('airless.slack.hook.slack.requests.get', return_value=response):
+            with pytest.raises(Exception, match='not_allowed_token_type'):
+                hook.search('hello')
 
     def test_search_raises_without_user_token(self, hook):
         with patch('airless.slack.hook.slack.requests.get') as mock_get:

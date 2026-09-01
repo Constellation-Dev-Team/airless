@@ -292,7 +292,7 @@ class SlackHook(BaseHook):
         params: Dict[str, Any] = {
             'limit': limit,
             'types': types or 'public_channel,private_channel',
-            'exclude_archived': exclude_archived,
+            'exclude_archived': 'true' if exclude_archived else 'false',
         }
         if cursor:
             params['cursor'] = cursor
@@ -316,6 +316,7 @@ class SlackHook(BaseHook):
 
         Raises:
             requests.HTTPError: When the HTTP status code indicates an error.
+            Exception: When the Slack response body contains `ok: false`.
         """
         params: Dict[str, Any] = {'channel': id}
 
@@ -326,7 +327,10 @@ class SlackHook(BaseHook):
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()
+        response_json = response.json()
+        if not response_json['ok']:
+            raise Exception(f'Slack error {response_json["error"]}')
+        return response_json
 
     def get_channel_users(
         self, channel_id: str, limit: int = 1000, cursor: Optional[str] = None
@@ -411,9 +415,9 @@ class SlackHook(BaseHook):
                 `process_response` with key 'messages'.
         """
         params: Dict[str, Any] = {'channel': channel_id, 'limit': limit}
-        if timedelta_start:
+        if timedelta_start is not None:
             params['oldest'] = self.timedelta_to_timestamp(timedelta_start)
-        if timedelta_end:
+        if timedelta_end is not None:
             params['latest'] = self.timedelta_to_timestamp(timedelta_end)
         if cursor:
             params['cursor'] = cursor
@@ -457,9 +461,9 @@ class SlackHook(BaseHook):
             'ts': message_ts,
             'limit': limit,
         }
-        if timedelta_start:
+        if timedelta_start is not None:
             params['oldest'] = self.timedelta_to_timestamp(timedelta_start)
-        if timedelta_end:
+        if timedelta_end is not None:
             params['latest'] = self.timedelta_to_timestamp(timedelta_end)
         if cursor:
             params['cursor'] = cursor
@@ -494,7 +498,8 @@ class SlackHook(BaseHook):
 
         Raises:
             requests.HTTPError: When the HTTP status code indicates an error.
-            Exception: When the user token was not set with `set_user_token`.
+            Exception: When the user token was not set with `set_user_token` or
+                when the Slack response body contains `ok: false`.
         """
         params: Dict[str, Any] = {
             'query': query,
@@ -510,4 +515,7 @@ class SlackHook(BaseHook):
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()
+        response_json = response.json()
+        if not response_json['ok']:
+            raise Exception(f'Slack error {response_json["error"]}')
+        return response_json
