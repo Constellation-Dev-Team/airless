@@ -1,6 +1,13 @@
 
 **unreleased**
 
+**v0.5.0**
+- [Feature] Add Slack channel read methods to `SlackHook`: `get_users`, `get_channels`, `get_channel`, `get_channel_users`, `join_channel`, `get_messages`, `get_message_replies` and `search`
+- [Feature] Add `process_response` and `timedelta_to_timestamp` helpers to `SlackHook`
+- [Feature] Add user token support to `SlackHook` via `set_user_token` and `get_user_headers`, used by `search`
+- [Feature] Add unit tests for `SlackHook` read and write methods
+- [Bugfix] Accept a day offset of `0` in `get_messages` and `get_message_replies`, raise on Slack `ok: false` responses in `get_channel` and `search`, and send `exclude_archived` as a lowercase string in `get_channels`
+
 **v0.4.3**
 - [Bugfix] check api response only when not responding to a thread
 
