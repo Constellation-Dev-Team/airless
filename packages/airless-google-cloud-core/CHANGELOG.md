@@ -1,6 +1,9 @@
 
 **unreleased**
 
+**v0.4.0**
+- [Feature] Allow defining a custom pubsub publish timeout
+
 **v0.3.0**
 - [Refactor] Remove airless dependency limitation
 

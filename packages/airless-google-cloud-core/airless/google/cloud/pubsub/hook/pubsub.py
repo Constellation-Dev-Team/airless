@@ -1,4 +1,3 @@
-
 import json
 from typing import Any
 
@@ -28,13 +27,21 @@ class GooglePubsubHook(QueueHook):
             str: A confirmation message.
         """
         if get_config('ENV') == 'prod':
-            topic_path = self.publisher.topic_path(project or get_config('GCP_PROJECT'), topic)
+            topic_path = self.publisher.topic_path(
+                project or get_config('GCP_PROJECT'), topic
+            )
 
             message_bytes = json.dumps(data, default=str).encode('utf-8')
 
             publish_future = self.publisher.publish(topic_path, data=message_bytes)
-            publish_future.result(timeout=10)
-            self.logger.info(f'published to {project or get_config("GCP_PROJECT")}.{topic}')
+            publish_future.result(
+                timeout=int(get_config('PUBSUB_PUBLISH_TIMEOUT', False) or 10)
+            )
+            self.logger.info(
+                f'published to {project or get_config("GCP_PROJECT")}.{topic}'
+            )
             return 'Message published.'
         else:
-            self.logger.debug(f'[DEV] Message published to Project {project or get_config("GCP_PROJECT")}, Topic {topic}: {data}')
+            self.logger.debug(
+                f'[DEV] Message published to Project {project or get_config("GCP_PROJECT")}, Topic {topic}: {data}'
+            )

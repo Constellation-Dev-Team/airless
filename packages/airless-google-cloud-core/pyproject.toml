@@ -1,6 +1,6 @@
 [project]
 name = "airless-google-cloud-core"
-version = "0.3.0"
+version = "0.4.0"
 description = "Airless package with the main components to use airless in google cloud"
 readme = "README.md"
 requires-python = ">=3.9"
