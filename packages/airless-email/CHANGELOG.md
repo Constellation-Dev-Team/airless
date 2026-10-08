@@ -1,6 +1,9 @@
 
 **unreleased**
 
+**v1.6.0**
+- [Feature] Allow defining a custom SMTP connection timeout in `GoogleEmailHook` (default 30s)
+
 **v1.5.0**
 - [Refactor] Remove airless dependency limitation
 
