@@ -26,6 +26,7 @@ class GoogleEmailHook(EmailHook):
         sender: str,
         attachments: List[dict],
         mime_type: str,
+        timeout: int = 30,
     ) -> None:
         """Sends an email.
 
@@ -36,11 +37,12 @@ class GoogleEmailHook(EmailHook):
             sender (str): The sender's email address.
             attachments (List[dict]): The list of attachments.
             mime_type (str): The MIME type of the email content.
+            timeout (int, optional): The SMTP connection timeout in seconds. Defaults to 30.
         """
         msg = self.build_message(
             subject, content, recipients, sender, attachments, mime_type
         )
-        server = smtplib.SMTP_SSL(SECRET['host'], SECRET['port'])
+        server = smtplib.SMTP_SSL(SECRET['host'], SECRET['port'], timeout=timeout)
 
         try:
             server.login(SECRET['user'], SECRET['password'])
